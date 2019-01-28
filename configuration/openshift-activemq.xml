@@ -1,0 +1,105 @@
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <value>file:${activemq.conf}/credentials.properties</value>
+        </property>
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="searchSystemEnvironment" value="true" />
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+    </bean>
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${HOSTNAME}" dataDirectory="${activemq.data}">
+
+        <!-- ##### DESTINATIONS ##### -->
+        <destinations>
+            <queue physicalName="TESTQ" />
+        </destinations>
+
+        <destinationPolicy>
+            <policyMap>
+                <policyEntries>
+                    <policyEntry queue=">" producerFlowControl="true" memoryLimit="10mb" useCache="false">
+                        <deadLetterStrategy>
+                            <individualDeadLetterStrategy queuePrefix="" queueSuffix=".DLQ" useQueueForQueueMessages="true"/>
+                        </deadLetterStrategy>
+                        <networkBridgeFilterFactory>
+                            <conditionalNetworkBridgeFilterFactory replayWhenNoConsumers="true" replayDelay="500" />
+                        </networkBridgeFilterFactory>
+                    </policyEntry>
+                    <policyEntry topic=">" producerFlowControl="true">
+
+                        <pendingMessageLimitStrategy>
+                            <constantPendingMessageLimitStrategy limit="1000" />
+                        </pendingMessageLimitStrategy>
+                    </policyEntry>
+
+                </policyEntries>
+            </policyMap>
+        </destinationPolicy>
+
+        <managementContext>
+            <managementContext createConnector="false" />
+        </managementContext>
+
+        <networkConnectors>
+
+            <!-- ##### MESH_CONFIG ##### -->
+        </networkConnectors>
+
+        <persistenceAdapter>
+            <mKahaDB directory="${activemq.data}/kahadb">
+                <filteredPersistenceAdapters>
+                    <filteredKahaDB queue="ActiveMQ.DLQ">
+                        <persistenceAdapter>
+                            <kahaDB journalMaxFileLength="32mb" enableJournalDiskSyncs="false" checkForCorruptJournalFiles="true"/>
+                        </persistenceAdapter>
+                    </filteredKahaDB>
+                    <filteredKahaDB>
+                        <persistenceAdapter>
+                            <kahaDB journalMaxFileLength="16 mb" enableJournalDiskSyncs="true" checkForCorruptJournalFiles="true"/>
+                        </persistenceAdapter>
+                    </filteredKahaDB>
+                </filteredPersistenceAdapters>
+            </mKahaDB>
+        </persistenceAdapter>
+
+        <plugins>
+            <!-- ##### AUTHENTICATION ##### -->
+            <jaasAuthenticationPlugin configuration="activemq" />
+        </plugins>
+
+        <systemUsage>
+            <systemUsage>
+                <memoryUsage>
+                    <memoryUsage percentOfJvmHeap="70" />
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="50 gb" />
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="50 gb" />
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
+
+
+
+        <transportConnectors>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=2500&amp;wireFormat.maxFrameSize=104857600" />
+        </transportConnectors>
+
+
+        <!-- destroy the spring context on shutdown to stop jetty -->
+        <shutdownHooks>
+            <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
+        </shutdownHooks>
+
+    </broker>
+
+    <!-- ##### DATASOURCE_BEAN ##### -->
+
+
+</beans>
