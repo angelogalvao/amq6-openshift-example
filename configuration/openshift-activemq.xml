@@ -16,6 +16,7 @@
         <!-- ##### DESTINATIONS ##### -->
         <destinations>
             <queue physicalName="TESTQ" />
+            <queue physicalName="TESTQ.ONE" />
         </destinations>
 
         <destinationPolicy>
