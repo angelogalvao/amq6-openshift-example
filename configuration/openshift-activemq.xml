@@ -15,10 +15,10 @@
 
         <!-- ##### DESTINATIONS ##### -->
         <destinations>
-            <queue physicalName="TESTQ" />
-            <queue physicalName="TESTQ.ONE" />
-            <queue physicalName="TESTQ.TWO" />
+            
+
             <topic physicalName="TEST.VIRTUALTOPIC.A" />
+            <queue physicalName="VTC.MY_CONSUMER.TEST.VIRTUALTOPIC.A" />
         </destinations>
 
         <destinationInterceptors>
