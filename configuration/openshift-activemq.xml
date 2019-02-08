@@ -18,7 +18,17 @@
             <queue physicalName="TESTQ" />
             <queue physicalName="TESTQ.ONE" />
             <queue physicalName="TESTQ.TWO" />
+            <topic physicalName="TEST.VIRTUALTOPIC.A" />
         </destinations>
+
+        <destinationInterceptors>
+            <virtualDestinationInterceptor>
+                <virtualDestinations>
+                    <virtualTopic name="TEST.VIRTUALTOPIC.>" prefix="VTC.*." selectorAware="false"/>
+                </virtualDestinations>
+            </virtualDestinationInterceptor>
+        </destinationInterceptors>
+
 
         <destinationPolicy>
             <policyMap>
